@@ -44,5 +44,7 @@ jobs:
 workflows:
   say-hello-workflow:
     jobs:
-      - say-hello
+      - say-hello:
+        context:
+          - slack
       - say-hello2
