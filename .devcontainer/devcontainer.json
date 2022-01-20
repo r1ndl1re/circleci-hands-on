@@ -1,0 +1,17 @@
+{
+    "image": "hashicorp/terraform:1.1.4",
+    "runArgs": [
+        "--env-file",
+        "sample-profile.env"
+    ],
+    "extensions": [
+        "HashiCorp.terraform"
+    ],
+    "settings": {
+        "[terraform]": {
+            "editor.formatOnSave": true,
+            "editor.tabSize": 2,
+        }
+    },
+    "initializeCommand": "aws-vault exec r1ndl1re -- env | grep AWS > sample-profile.env"
+}
