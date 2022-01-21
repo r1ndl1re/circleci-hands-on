@@ -27,7 +27,7 @@ jobs:
       - run:
           name: "Say hello"
           command: "echo Hello, World!"
-      - insall-tfnotify
+      - install-tfnotify
       - slack/notify:
           event: fail
           template: basic_fail_1
