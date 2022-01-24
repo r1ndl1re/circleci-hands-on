@@ -4,8 +4,8 @@ notifier:
   github:
     token: $GITHUB_TOKEN
     repository:
-      owner: "mercari"
-      name: "tfnotify"
+      owner: "r1ndl1re"
+      name: "circleci-hands-on"
 terraform:
   fmt:
     template: |
