@@ -8,6 +8,9 @@ executors:
     docker:
       - image: hashicorp/terraform:1.1.4
     resource_class: small
+    shell: /bin/sh -leo pipefail
+    environment:
+      - BASH_ENV: /etc/profile
 
 commands:
   install-tfnotify:
@@ -66,9 +69,9 @@ jobs:
               --external-id "9998" \
               --query "Credentials" \
               --output "json")"
-            export AWS_ACCESS_KEY_ID="$(echo $aws_sts_credentials | jq -r '.AccessKeyId')"
-            export AWS_SECRET_ACCESS_KEY="$(echo $aws_sts_credentials | jq -r '.SecretAccessKey')"
-            export AWS_SESSION_TOKEN="$(echo $aws_sts_credentials | jq -r '.SessionToken')"
+            echo AWS_ACCESS_KEY_ID="$(echo $aws_sts_credentials | jq -r '.AccessKeyId')" >> $BASH_ENV
+            echo AWS_SECRET_ACCESS_KEY="$(echo $aws_sts_credentials | jq -r '.SecretAccessKey')" >> $BASH_ENV
+            echo AWS_SESSION_TOKEN="$(echo $aws_sts_credentials | jq -r '.SessionToken')" >> $BASH_ENV
       - run:
           name: printenv
           command: printenv | grep AWS
