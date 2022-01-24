@@ -70,6 +70,9 @@ jobs:
             export AWS_SECRET_ACCESS_KEY="$(echo $aws_sts_credentials | jq -r '.SecretAccessKey')"
             export AWS_SESSION_TOKEN="$(echo $aws_sts_credentials | jq -r '.SessionToken')"
       - run:
+          name: printenv
+          command: printenv | grep AWS
+      - run:
           name: Init terraform
           command: terraform init
           working_directory: terraform
