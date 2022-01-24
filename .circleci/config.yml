@@ -61,7 +61,7 @@ jobs:
       - install-tfnotify
       - install-aws-cli-v2
       - run:
-          nane: assume-role
+          name: assume-role
           command: |
             aws_sts_credentials="$(aws sts assume-role \
               --role-arn ${AWS_ASSUME_ROLE_ARN} \
