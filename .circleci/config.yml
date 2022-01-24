@@ -38,30 +38,10 @@ commands:
             curl -sL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip
             unzip -q awscliv2.zip
             aws/install
-
-jobs:
-  say-hello:
-    executor: default
+  assume-role:
     steps:
-      - checkout
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
-      - install-tfnotify
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-  plan:
-    executor: default
-    steps:
-      - checkout
-      - install-tfnotify
-      - install-aws-cli-v2
-      - run:
-          name: assume-role
+          name: Assume-role
           command: |
             aws_sts_credentials="$(aws sts assume-role \
               --role-arn ${AWS_ASSUME_ROLE_ARN} \
@@ -72,10 +52,15 @@ jobs:
             echo AWS_ACCESS_KEY_ID="$(echo $aws_sts_credentials | jq -r '.AccessKeyId')" >> $BASH_ENV
             echo AWS_SECRET_ACCESS_KEY="$(echo $aws_sts_credentials | jq -r '.SecretAccessKey')" >> $BASH_ENV
             echo AWS_SESSION_TOKEN="$(echo $aws_sts_credentials | jq -r '.SessionToken')" >> $BASH_ENV
-            echo FOO_BAR_ENV="FOO_BAR_TEST" >> $BASH_ENV
-      - run:
-          name: printenv
-          command: printenv
+
+jobs:
+  plan:
+    executor: default
+    steps:
+      - checkout
+      - install-tfnotify
+      - install-aws-cli-v2
+      - assume-role
       - run:
           name: Init terraform
           command: terraform init
@@ -86,13 +71,14 @@ jobs:
           working_directory: terraform
       - run:
           name: Plan terraform
-          command: terraform plan
+          command: terraform plan | tfnotify plan
           working_directory: terraform
 
 workflows:
-  say-hello-workflow:
+  terraform-workflow:
     jobs:
       - plan:
           context:
             - slack
             - aws
+            - github
