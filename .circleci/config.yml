@@ -17,13 +17,16 @@ commands:
           command: "apk update"
       - run:
           name: "install curl"
-          command: "apk add curl"
+          command: "apk add curl jq"
       - run:
           name: "download tfnotify"
           command: "curl -fL -o tfnotify.tar.gz https://github.com/mercari/tfnotify/releases/download/v0.7.0/tfnotify_linux_amd64.tar.gz"
       - run:
           name: "install tfnotify"
           command: "tar -C /usr/bin -xzf ./tfnotify.tar.gz"
+      - run:
+          name: "check tfnotify version"
+          command: "tfnotify --version"
 
 jobs:
   say-hello:
