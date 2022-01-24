@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.1
+  aws-cli: circleci/aws-cli@2.0.6
 
 executors:
   default:
@@ -45,6 +46,19 @@ jobs:
     steps:
       - checkout
       - install-tfnotify
+      - aws-cli/install
+      - run:
+          nane: assume-role
+          command: |
+            aws_sts_credentials="$(aws sts assume-role \
+              --role-arn ${AWS_ASSUME_ROLE_ARN} \
+              --role-session-name "circle-ci-session" \
+              --external-id "9998" \
+              --query "Credentials" \
+              --output "json")"
+            export AWS_ACCESS_KEY_ID="$(echo $aws_sts_credentials | jq -r '.AccessKeyId')"
+            export AWS_SECRET_ACCESS_KEY="$(echo $aws_sts_credentials | jq -r '.SecretAccessKey')"
+            export AWS_SESSION_TOKEN="$(echo $aws_sts_credentials | jq -r '.SessionToken')"
       - run:
           name: Init terraform
           command: terraform init
