@@ -72,12 +72,10 @@ jobs:
             echo AWS_ACCESS_KEY_ID="$(echo $aws_sts_credentials | jq -r '.AccessKeyId')" >> $BASH_ENV
             echo AWS_SECRET_ACCESS_KEY="$(echo $aws_sts_credentials | jq -r '.SecretAccessKey')" >> $BASH_ENV
             echo AWS_SESSION_TOKEN="$(echo $aws_sts_credentials | jq -r '.SessionToken')" >> $BASH_ENV
+            echo FOO_BAR_ENV="FOO_BAR_TEST" >> $BASH_ENV
       - run:
           name: printenv
           command: printenv
-      - run:
-          name: bashenv
-          command: echo $BASH_ENV
       - run:
           name: Init terraform
           command: terraform init
