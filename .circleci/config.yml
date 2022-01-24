@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.1
-  aws-cli: circleci/aws-cli@2.0.6
 
 executors:
   default:
@@ -14,17 +13,28 @@ commands:
   install-tfnotify:
     steps:
       - run:
-          name: "install curl"
-          command: "apk --update add curl jq"
+          name: Download tfnotify
+          command: |
+            apk --update add curl jq
+            curl -fL -o tfnotify.tar.gz https://github.com/mercari/tfnotify/releases/download/v0.7.0/tfnotify_linux_amd64.tar.gz
+            tar -C /usr/bin -xzf ./tfnotify.tar.gz
+  install-aws-cli-v2:
+    steps:
       - run:
-          name: "download tfnotify"
-          command: "curl -fL -o tfnotify.tar.gz https://github.com/mercari/tfnotify/releases/download/v0.7.0/tfnotify_linux_amd64.tar.gz"
+        name: Download dependencies
+        command: |
+          export GLIBC_VER=2.34-r0
+          apk --no-cache add binutils curl
+          curl -sL https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub
+          curl -sLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VER}/glibc-${GLIBC_VER}.apk
+          curl -sLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VER}/glibc-bin-${GLIBC_VER}.apk
+          apk add --no-cache glibc-${GLIBC_VER}.apk glibc-bin-${GLIBC_VER}.apk
       - run:
-          name: "install tfnotify"
-          command: "tar -C /usr/bin -xzf ./tfnotify.tar.gz"
-      - run:
-          name: "check tfnotify version"
-          command: "tfnotify --version"
+        name: Install aws-cli-v2
+        command: |
+          curl -sL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip
+          unzip -q awscliv2.zip
+          aws/install
 
 jobs:
   say-hello:
@@ -46,7 +56,7 @@ jobs:
     steps:
       - checkout
       - install-tfnotify
-      - aws-cli/install
+      - install-aws-cli-v2
       - run:
           nane: assume-role
           command: |
