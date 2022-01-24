@@ -45,6 +45,7 @@ jobs:
     steps:
       - checkout
       - install-tfnotify
+      - run: ls -la
       - run:
           name: Change directory
           command: cd terraform
