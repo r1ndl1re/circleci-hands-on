@@ -46,18 +46,17 @@ jobs:
       - checkout
       - install-tfnotify
       - run:
-          name: Change directory
-          command: cd terraform
-      - run: ls -la
-      - run:
           name: Init terraform
           command: terraform init
+          working_directory: terraform
       - run:
           name: Validate terraform
           command: terraform validate
+          working_directory: terraform
       - run:
           name: Plan terraform
           command: terraform plan
+          working_directory: terraform
 
 workflows:
   say-hello-workflow:
