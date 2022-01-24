@@ -4,7 +4,7 @@ orbs:
   slack: circleci/slack@4.1
 
 executors:
-  my-executor:
+  default:
     docker:
       - image: hashicorp/terraform:1.1.4
     resource_class: small
@@ -13,11 +13,8 @@ commands:
   install-tfnotify:
     steps:
       - run:
-          name: "update apk"
-          command: "apk update"
-      - run:
           name: "install curl"
-          command: "apk add curl jq"
+          command: "apk --update add curl jq"
       - run:
           name: "download tfnotify"
           command: "curl -fL -o tfnotify.tar.gz https://github.com/mercari/tfnotify/releases/download/v0.7.0/tfnotify_linux_amd64.tar.gz"
@@ -30,7 +27,7 @@ commands:
 
 jobs:
   say-hello:
-    executor: my-executor
+    executor: default
     steps:
       - checkout
       - run:
@@ -43,11 +40,25 @@ jobs:
       - slack/notify:
           event: pass
           template: success_tagged_deploy_1
+  plan:
+    executor: default
+    steps:
+      - checkout
+      - install-tfnotify
+      - run:
+          name: Init terraform
+          command: terraform init
+      - run:
+          name: Validate terraform
+          command: terraform validate
+      - run:
+          name: Plan terraform
+          command: terraform plan
 
 workflows:
   say-hello-workflow:
     jobs:
-      - say-hello:
+      - plan:
           context:
             - slack
             - aws
