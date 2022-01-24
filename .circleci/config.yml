@@ -46,6 +46,9 @@ jobs:
       - checkout
       - install-tfnotify
       - run:
+          name: Change directory
+          command: cd terraform
+      - run:
           name: Init terraform
           command: terraform init
       - run:
