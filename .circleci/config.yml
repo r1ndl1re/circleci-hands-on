@@ -45,10 +45,10 @@ jobs:
     steps:
       - checkout
       - install-tfnotify
-      - run: ls -la
       - run:
           name: Change directory
           command: cd terraform
+      - run: ls -la
       - run:
           name: Init terraform
           command: terraform init
