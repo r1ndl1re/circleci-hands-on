@@ -16,7 +16,7 @@ commands:
           name: "update apk"
           command: "apk update"
       - run:
-          name: "install curl":
+          name: "install curl"
           command: "apk add curl"
       - run:
           name: "download tfnotify"
