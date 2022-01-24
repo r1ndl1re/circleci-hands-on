@@ -71,7 +71,7 @@ jobs:
           working_directory: terraform
       - run:
           name: Plan terraform
-          command: terraform plan | tfnotify -config ../.tfnotify.yml plan
+          command: terraform plan | tfnotify --config ../.tfnotify.yml plan
           working_directory: terraform
 
 workflows:
