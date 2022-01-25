@@ -13,5 +13,8 @@
             "editor.tabSize": 2,
         }
     },
-    "initializeCommand": "aws-vault exec r1ndl1re -- env | grep AWS > sample-profile.env"
+    "initializeCommand": "aws-vault exec r1ndl1re -- env | grep AWS > sample-profile.env",
+    "mounts": [
+        "source=vscode-devcontainer-extensions,target=/root/.vscode-server/extensions,type=volume"
+    ]
 }
