@@ -80,6 +80,21 @@ jobs:
           name: Plan terraform
           command: terraform plan | tfnotify --config ../.tfnotify.yml plan
           working_directory: terraform
+  apply:
+    executor: default
+    steps:
+      - checkout
+      - install-tfnotify
+      - install-aws-cli-v2
+      - assume-role
+      - run:
+          name: Init terraform
+          command: terraform init
+          working_directory: terraform
+      - run:
+          name: Apply terraform
+          command: terraform apply | tfnotify --config ../.tfnotify.yml apply
+          working_directory: terraform
 
 workflows:
   terraform-workflow:
@@ -94,3 +109,13 @@ workflows:
             - github
           requires:
             - validate
+      - apply:
+          context:
+            - slack
+            - aws
+            - github
+          requires:
+            - plan
+          filters:
+            branches:
+              only: main
