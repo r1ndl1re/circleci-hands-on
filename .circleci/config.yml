@@ -93,7 +93,7 @@ jobs:
           working_directory: terraform
       - run:
           name: Apply terraform
-          command: terraform apply | tfnotify --config ../.tfnotify.yml apply
+          command: terraform apply --auto-approve | tfnotify --config ../.tfnotify.yml apply
           working_directory: terraform
 
 workflows:
