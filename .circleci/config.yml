@@ -81,6 +81,7 @@ workflows:
   terraform-workflow:
     jobs:
       - validate:
+          context:
             - aws
       - plan:
           context:
