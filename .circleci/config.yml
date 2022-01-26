@@ -73,6 +73,10 @@ jobs:
       - install-aws-cli-v2
       - assume-role
       - run:
+          name: Init terraform
+          command: terraform init
+          working_directory: terraform
+      - run:
           name: Plan terraform
           command: terraform plan | tfnotify --config ../.tfnotify.yml plan
           working_directory: terraform
