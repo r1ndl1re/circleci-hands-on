@@ -88,4 +88,5 @@ workflows:
             - slack
             - aws
             - github
-          requires: validate
+          requires:
+            - validate
