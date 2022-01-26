@@ -16,25 +16,22 @@ commands:
   install-tfnotify:
     steps:
       - run:
-          name: Download tfnotify
+          name: Install tfnotify
           command: |
-            apk --update add curl jq
+            apk --no-cache --update add curl jq
             curl -fL -o tfnotify.tar.gz https://github.com/mercari/tfnotify/releases/download/v0.7.0/tfnotify_linux_amd64.tar.gz
             tar -C /usr/bin -xzf ./tfnotify.tar.gz
   install-aws-cli-v2:
     steps:
       - run:
-          name: Download dependencies
+          name: Install aws-cli-v2
           command: |
             export GLIBC_VER=2.34-r0
-            apk --no-cache add binutils curl
+            apk --no-cache --update add binutils curl jq
             curl -sL https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -o /etc/apk/keys/sgerrand.rsa.pub
             curl -sLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VER}/glibc-${GLIBC_VER}.apk
             curl -sLO https://github.com/sgerrand/alpine-pkg-glibc/releases/download/${GLIBC_VER}/glibc-bin-${GLIBC_VER}.apk
             apk add --no-cache glibc-${GLIBC_VER}.apk glibc-bin-${GLIBC_VER}.apk
-      - run:
-          name: Install aws-cli-v2
-          command: |
             curl -sL https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o awscliv2.zip
             unzip -q awscliv2.zip
             aws/install
@@ -54,6 +51,20 @@ commands:
             echo AWS_SESSION_TOKEN="$(echo $aws_sts_credentials | jq -r '.SessionToken')" >> $BASH_ENV
 
 jobs:
+  validate:
+    executor: default
+    steps:
+      - checkout
+      - install-aws-cli-v2
+      - assume-role
+      - run:
+          name: Init terraform
+          command: terraform init
+          working_directory: terraform
+      - run:
+          name: Validate terraform
+          command: terraform validate
+          working_directory: terraform
   plan:
     executor: default
     steps:
@@ -66,19 +77,45 @@ jobs:
           command: terraform init
           working_directory: terraform
       - run:
-          name: Validate terraform
-          command: terraform validate
-          working_directory: terraform
-      - run:
           name: Plan terraform
           command: terraform plan | tfnotify --config ../.tfnotify.yml plan
+          working_directory: terraform
+  apply:
+    executor: default
+    steps:
+      - checkout
+      - install-tfnotify
+      - install-aws-cli-v2
+      - assume-role
+      - run:
+          name: Init terraform
+          command: terraform init
+          working_directory: terraform
+      - run:
+          name: Apply terraform
+          command: terraform apply | tfnotify --config ../.tfnotify.yml apply
           working_directory: terraform
 
 workflows:
   terraform-workflow:
     jobs:
+      - validate:
+          context:
+            - aws
       - plan:
           context:
             - slack
             - aws
             - github
+          requires:
+            - validate
+      - apply:
+          context:
+            - slack
+            - aws
+            - github
+          requires:
+            - plan
+          filters:
+            branches:
+              only: main
