@@ -1,13 +1,9 @@
-resource "aws_s3_bucket" "b" {
-  bucket = "sample-bucket-r1ndl1re"
+resource "aws_s3_bucket" "private" {
+  bucket = "private-pragmatic-terraform-r1ndl1re"
   acl    = "private"
 
   versioning {
     enabled = false
-  }
-
-  tags = {
-    "CreatedAt" = "20220112"
   }
 
   server_side_encryption_configuration {
@@ -17,12 +13,29 @@ resource "aws_s3_bucket" "b" {
       }
     }
   }
+
+  tags = {
+    "CreatedAt" = "20220112"
+  }
 }
 
-resource "aws_s3_bucket_public_access_block" "b-pab" {
-  bucket                  = aws_s3_bucket.b.id
+resource "aws_s3_bucket_public_access_block" "private" {
+  bucket                  = aws_s3_bucket.private.id
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket" "alb_log" {
+  bucket        = "alb-log-r1ndl1re"
+  acl           = "private"
+  force_destroy = true
+
+  lifecycle_rule {
+    enabled = true
+    expiration {
+      days = 2
+    }
+  }
 }
